@@ -12,7 +12,7 @@
 
 constexpr glm::vec2 screenDim = {800, 500};
 
-constexpr glm::uint16_t foilPoints = 50;
+constexpr glm::uint16_t foilPoints = 200;
 constexpr double scale = 300.0;
 
 double getDT() {
@@ -52,9 +52,10 @@ int main() {
 		.text = "NACA " + NACA4 + " AIRFOIL",
 		.pos = {10, 10}
 	};
-	
+
 	render.addObj(points);
 	render.addLine(name);
+
 
     bool running = true;
     SDL_Event event;

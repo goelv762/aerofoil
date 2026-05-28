@@ -1,4 +1,5 @@
 #include "aerofoil.hpp"
+#include <algorithm>
 #include <cmath>
 #include <glm/ext/vector_float2.hpp>
 #include <sys/types.h>
@@ -70,6 +71,9 @@ std::vector<glm::vec2> generateAerofoil(double m, double p, double t, uint16_t n
 	for (auto& point : upper) {
 		aerofoil.push_back(point);
 	}
+
+	// to ensure same side when rendering
+	std::reverse(lower.begin(), lower.end());
 
 	for (auto& point : lower) {
 		aerofoil.push_back(point);
