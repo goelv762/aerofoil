@@ -1,6 +1,7 @@
 # Aerofoil
 Generation of NACA4 Aerofoils.
-<img width="800" height="500" alt="scr" src="https://github.com/user-attachments/assets/b9b8fd04-6073-496d-80d0-78bf027971f2" />
+<img width="800" height="500" alt="scr" src="https://github.com/user-attachments/assets/f308ba11-2895-45d8-bf94-0bf7526e728a" />
+
 
 ## Description
 Using the formulas given airfoiltools (http://airfoiltools.com/airfoil/naca4digit), this program generates a set of points corresponding to that shape. 
