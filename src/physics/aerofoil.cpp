@@ -19,7 +19,7 @@ double computeYT(double t, double x, bool isOpen) {
 		   a4     * std::pow(x, 4));
 }
 
-std::vector<glm::vec2> generateAerofoil(double m, double p, double t, uint16_t n, double scale, glm::vec2 offset) {
+std::vector<glm::vec2> generateAerofoil(double m, double p, double t, uint16_t n, double scale) {
 	std::vector<glm::vec2> upper;
 	std::vector<glm::vec2> lower;
 	
@@ -54,7 +54,6 @@ std::vector<glm::vec2> generateAerofoil(double m, double p, double t, uint16_t n
 		};
 
 		u *= scale;
-		u += offset;
 
 		glm::vec2 l = {
 			x + yt * sinTheta,
@@ -62,7 +61,6 @@ std::vector<glm::vec2> generateAerofoil(double m, double p, double t, uint16_t n
 		};
 
 		l *= scale;
-		l += offset;
 
 		upper.push_back(u);
 		lower.push_back(l);

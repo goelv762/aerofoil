@@ -13,6 +13,7 @@
 constexpr glm::vec2 screenDim = {800, 500};
 
 constexpr glm::uint16_t foilPoints = 50;
+constexpr double scale = 300.0;
 
 double getDT() {
     static uint64_t lastTime = SDL_GetPerformanceCounter();
@@ -35,7 +36,17 @@ int main() {
 	double p = (NACA4[1] - '0') / 10.0f;
 	double t = std::stoi(NACA4.substr(NACA4.length() - 2)) / 100.0f;
 
-	std::vector<glm::vec2> points = generateAerofoil(m, p, t, foilPoints, 300.0f, {250, 230});
+	std::vector<glm::vec2> points = generateAerofoil(m, p, t, foilPoints, scale);
+	glm::vec2 avg = {0, 0};
+	for (auto& point : points) {
+		avg += point;
+	}
+
+	avg /= points.size();
+	glm::vec2 diff = (screenDim / 2.0f) - avg;
+	for (auto& point : points) {
+		point += diff;
+	}
 	
 	Text name = {
 		.text = "NACA " + NACA4 + " AIRFOIL",
