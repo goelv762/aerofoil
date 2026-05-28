@@ -2,6 +2,7 @@
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
+#include <SDL3_image/SDL_image.h>
 #include <glm/ext/vector_float2.hpp>
 #include <vector>
 
@@ -42,6 +43,9 @@ void Render::addObj(std::vector<glm::vec2>& obj) {
 
 	objs.push_back(sdlPoints);
 }
+void Render::addLine(Text& line) {
+	text.push_back(line);
+}
 
 Render::~Render() {
     SDL_DestroyRenderer(renderer);
@@ -66,10 +70,45 @@ void Render::update() {
 
 		SDL_RenderPoints(renderer, points.data(), points.size());
 	}
+	
+	for (auto line : text) {
+		SDL_RenderDebugText(renderer, line.pos.x, line.pos.y, line.text.c_str());
+	}
+
 
 
 	// Present to screen
 	SDL_RenderPresent(renderer);
+}
+
+void Render::exportScreen() {
+    SDL_Rect viewport;
+    SDL_GetRenderViewport(renderer, &viewport);
+
+    // create a texture to render into
+    SDL_Texture* target = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_RGBA32,
+        SDL_TEXTUREACCESS_TARGET,
+        viewport.w, viewport.h
+    );
+
+    SDL_SetRenderTarget(renderer, target);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    update();
+
+    // read pixels from the texture target
+    SDL_Surface* surface = SDL_RenderReadPixels(renderer, nullptr);
+
+    // Restore default render target
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_DestroyTexture(target);
+
+	IMG_SavePNG(surface, "scr.png");
+
+	SDL_DestroySurface(surface);
 }
 
 

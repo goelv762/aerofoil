@@ -1,12 +1,18 @@
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <glm/ext/vector_float2.hpp>
+#include <glm/fwd.hpp>
 #include <glm/glm.hpp>
+#include <iostream>
+#include <string>
 #include <vector>
 
 #include "rendering/render.hpp"
 #include "physics/aerofoil.hpp"
 
 constexpr glm::vec2 screenDim = {800, 500};
+
+constexpr glm::uint16_t foilPoints = 50;
 
 double getDT() {
     static uint64_t lastTime = SDL_GetPerformanceCounter();
@@ -21,12 +27,28 @@ double getDT() {
 int main() {
 	Render render(screenDim);
 
-	std::vector<glm::vec2> points = generateAerofoil(0.04, 0.4, 0.15, 50, 300.0f, {250, 220});
+	std::string NACA4;
+	std::cout << "Enter 4 digits for NACA airfoil: ";
+	std::cin >> NACA4;
 
+	double m = (NACA4[0] - '0') / 100.0f;
+	double p = (NACA4[1] - '0') / 10.0f;
+	double t = std::stoi(NACA4.substr(NACA4.length() - 2)) / 100.0f;
+
+	std::vector<glm::vec2> points = generateAerofoil(m, p, t, foilPoints, 300.0f, {250, 230});
+	
+	Text name = {
+		.text = "NACA " + NACA4 + " AIRFOIL",
+		.pos = {10, 10}
+	};
+	
 	render.addObj(points);
+	render.addLine(name);
 
     bool running = true;
     SDL_Event event;
+	
+	render.exportScreen();
 
     while (running) {
 		double dt = getDT();
@@ -36,7 +58,6 @@ int main() {
                 running = false;
             }
         }
-
 
 		render.update();
     }
