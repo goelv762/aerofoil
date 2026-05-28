@@ -46,10 +46,11 @@ std::vector<glm::vec2> generateAerofoil(double m, double p, double t, uint16_t n
 
 		double cosTheta = std::cos(theta);
 		double sinTheta = std::sin(theta);
-
+	
+		// negitave y coords as the y axis goes in opp dir
 		glm::vec2 u = {
 			x - yt * sinTheta,
-			yc + yt * cosTheta
+			-(yc + yt * cosTheta)
 		};
 
 		u *= scale;
@@ -57,7 +58,7 @@ std::vector<glm::vec2> generateAerofoil(double m, double p, double t, uint16_t n
 
 		glm::vec2 l = {
 			x + yt * sinTheta,
-			yc - yt * cosTheta
+			-(yc - yt * cosTheta)
 		};
 
 		l *= scale;
