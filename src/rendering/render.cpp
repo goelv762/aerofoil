@@ -56,8 +56,17 @@ void Render::update() {
 	SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
 	
 	for (auto obj : objs) {
-		SDL_RenderGeometry(renderer, NULL, obj.data(), obj.size(), NULL, obj.size());
+		// SDL_RenderGeometry(renderer, NULL, obj.data(), obj.size(), NULL, obj.size());
+		
+		// for debuging
+		std::vector<SDL_FPoint> points;
+		for (auto point : obj) {
+			points.push_back(point.position);
+		}
+
+		SDL_RenderPoints(renderer, points.data(), points.size());
 	}
+
 
 	// Present to screen
 	SDL_RenderPresent(renderer);

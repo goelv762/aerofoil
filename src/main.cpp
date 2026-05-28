@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "rendering/render.hpp"
+#include "physics/aerofoil.hpp"
 
 constexpr glm::vec2 screenDim = {800, 500};
 
@@ -20,7 +21,7 @@ double getDT() {
 int main() {
 	Render render(screenDim);
 
-	std::vector<glm::vec2> points = {{10, 10}, {100, 10}, {10, 20}};
+	std::vector<glm::vec2> points = generateAerofoil(0.04, 0.4, 0.15, 30, 200.0f, {300, 220});
 
 	render.addObj(points);
 
