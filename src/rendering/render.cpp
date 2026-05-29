@@ -8,7 +8,7 @@
 
 constexpr SDL_FColor defaultColour = {200, 200, 200, 255};
 
-Render::Render(glm::vec2 dim) {
+Render::Render(glm::vec2 dim) : viewport(dim) {
 	if (SDL_Init(SDL_INIT_VIDEO) == 0) {
         SDL_Log("Init failed: %s", SDL_GetError());
     }
@@ -62,6 +62,8 @@ void Render::update() {
 	for (auto obj : objs) {
 		std::vector<SDL_FPoint> points;
 		for (auto point : obj) {
+			// flip y axis b/c sdl3 is stupid
+			point.position.y = viewport.y - point.position.y;
 			points.push_back(point.position);
 		}
 

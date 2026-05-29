@@ -1,9 +1,10 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include <glm/ext/vector_float2.hpp>
 #include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -12,7 +13,7 @@
 
 constexpr glm::vec2 screenDim = {800, 500};
 
-constexpr glm::uint16_t foilPoints = 200;
+constexpr glm::uint16_t foilPoints = 10;
 constexpr double scale = 300.0;
 
 double getDT() {
@@ -36,7 +37,12 @@ int main() {
 	double p = (NACA4[1] - '0') / 10.0f;
 	double t = std::stoi(NACA4.substr(NACA4.length() - 2)) / 100.0f;
 
-	std::vector<glm::vec2> points = generateAerofoil(m, p, t, foilPoints, scale);
+	std::vector<glm::vec2> points = generateAerofoilPoints(m, p, t, foilPoints, scale);
+	std::vector<Panel> panels = generateAerofoilPanels(points, 0.0);
+
+	for (auto& panel : panels) {
+		std::cout << panel.delta << std::endl;
+	}
 	glm::vec2 avg = {0, 0};
 	for (auto& point : points) {
 		avg += point;

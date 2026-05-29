@@ -17,6 +17,8 @@ class Render {
 	
 		std::vector<std::vector<SDL_Vertex>> objs;
 		std::vector<Text> text;
+
+		glm::vec2 viewport;
 	public:
 		Render(glm::vec2 dim);
 		~Render();

@@ -2,6 +2,9 @@
 #include <algorithm>
 #include <cmath>
 #include <glm/ext/vector_float2.hpp>
+#include <glm/geometric.hpp>
+#include <iostream>
+#include <ostream>
 #include <sys/types.h>
 #include <vector>
 
@@ -20,7 +23,14 @@ double computeYT(double t, double x, bool isOpen) {
 		   a4     * std::pow(x, 4));
 }
 
-std::vector<glm::vec2> generateAerofoil(double m, double p, double t, uint16_t n, double scale) {
+double normaliseAngle(double angle) {
+	while (angle >= 2.0 * M_PI) angle -= 2.0 * M_PI;
+	while (angle <  0.0)        angle += 2.0 * M_PI;
+
+	return angle;
+}
+
+std::vector<glm::vec2> generateAerofoilPoints(double m, double p, double t, uint16_t n, double scale) {
 	std::vector<glm::vec2> upper;
 	std::vector<glm::vec2> lower;
 	
@@ -48,17 +58,16 @@ std::vector<glm::vec2> generateAerofoil(double m, double p, double t, uint16_t n
 		double cosTheta = std::cos(theta);
 		double sinTheta = std::sin(theta);
 	
-		// negitave y coords as the y axis goes in opp dir
 		glm::vec2 u = {
 			x - yt * sinTheta,
-			-(yc + yt * cosTheta)
+			yc + yt * cosTheta
 		};
 
 		u *= scale;
 
 		glm::vec2 l = {
 			x + yt * sinTheta,
-			-(yc - yt * cosTheta)
+			yc - yt * cosTheta
 		};
 
 		l *= scale;
@@ -68,17 +77,45 @@ std::vector<glm::vec2> generateAerofoil(double m, double p, double t, uint16_t n
 	}
 
 	// to ensure same side when rendering
-	std::reverse(upper.begin(), upper.end());
-
 	std::vector<glm::vec2> aerofoil;
+
 	for (auto& point : upper) {
 		aerofoil.push_back(point);
 	}
-
+	
+	std::reverse(lower.begin(), lower.end());
 	for (auto& point : lower) {
 		aerofoil.push_back(point);
 	}
 
-
 	return aerofoil;
+}
+
+std::vector<Panel> generateAerofoilPanels(std::vector<glm::vec2> points, double AoA) {
+	// first and last point of aerofoil is the same
+	// as a result length of the panels vector will be one less than points
+	std::vector<Panel> panels(points.size() - 1);
+	
+	for (size_t i = 0; i < panels.size(); i++) {
+		panels[i].p1 = points[i];
+		panels[i].p2 = points[i + 1];
+
+		panels[i].pc = (points[i] + points[i + 1]) / 2.0f;
+		panels[i].dydx = points[i + 1] - points[i];
+		panels[i].s = glm::length(panels[i].dydx);
+
+		panels[i].phi = std::atan2(panels[i].dydx.y, panels[i].dydx.x);
+		// rotate to positive angles if neg (dont know if i should have this ??)
+		if (panels[i].phi < 0.0) {
+			panels[i].phi += 2.0 * M_PI;
+		}
+
+		panels[i].delta = panels[i].phi + M_PI / 2.0;
+		panels[i].delta = normaliseAngle(panels[i].delta);
+
+		panels[i].beta = panels[i].delta - AoA;
+		panels[i].beta = normaliseAngle(panels[i].beta);
+	}
+
+	return panels;
 }
