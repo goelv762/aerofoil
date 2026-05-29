@@ -67,13 +67,13 @@ std::vector<glm::vec2> generateAerofoil(double m, double p, double t, uint16_t n
 		lower.push_back(l);
 	}
 
+	// to ensure same side when rendering
+	std::reverse(upper.begin(), upper.end());
+
 	std::vector<glm::vec2> aerofoil;
 	for (auto& point : upper) {
 		aerofoil.push_back(point);
 	}
-
-	// to ensure same side when rendering
-	std::reverse(lower.begin(), lower.end());
 
 	for (auto& point : lower) {
 		aerofoil.push_back(point);

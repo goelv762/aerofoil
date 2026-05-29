@@ -68,7 +68,7 @@ void Render::update() {
 		SDL_RenderLines(renderer, points.data(), points.size());
 
 		// debugging
-		SDL_RenderPoints(renderer, points.data(), points.size());
+		// SDL_RenderPoints(renderer, points.data(), points.size());
 	}
 	
 	for (auto line : text) {
