@@ -4,11 +4,13 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3_image/SDL_image.h>
 #include <glm/ext/vector_float2.hpp>
+#include <iostream>
+#include <ostream>
 #include <vector>
 
 constexpr SDL_FColor defaultColour = {200, 200, 200, 255};
 
-Render::Render(glm::vec2 dim) : viewport(dim) {
+Render::Render(glm::vec2 dim, double s) : viewport(dim), scale(s) {
 	if (SDL_Init(SDL_INIT_VIDEO) == 0) {
         SDL_Log("Init failed: %s", SDL_GetError());
     }
@@ -29,17 +31,26 @@ Render::Render(glm::vec2 dim) : viewport(dim) {
 
 void Render::addObj(std::vector<glm::vec2>& obj) {
 	// convert to sdl format to prevent having to re interprent case
-	std::vector<SDL_Vertex> sdlPoints;
+	std::vector<SDL_FPoint> sdlPoints;
+
+	glm::vec2 avg = {0.0f, 0.0f};
 	for (glm::vec2& point : obj) {
-		SDL_Vertex sdlPoint;
-		sdlPoint.position = {point.x, point.y};
-		sdlPoint.color = defaultColour;
-
-		// no textures so dont care about uv
-		sdlPoint.tex_coord = {1.0f, 1.0f};
-
-		sdlPoints.push_back(sdlPoint);
+		// scale up
+		point *= scale;
+		// flip y axis
+		point.y = viewport.y - point.y;
+		// center
+		// TODO: add flag for obj centering
+		avg += point;
 	}
+
+	avg /= obj.size();
+	
+	for (glm::vec2& point : obj) {
+		point += viewport / 2.0f  - avg;
+		sdlPoints.push_back({point.x, point.y});
+	}
+
 
 	objs.push_back(sdlPoints);
 }
@@ -60,23 +71,16 @@ void Render::update() {
 	SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
 	
 	for (auto obj : objs) {
-		std::vector<SDL_FPoint> points;
-		for (auto point : obj) {
-			// flip y axis b/c sdl3 is stupid
-			point.position.y = viewport.y - point.position.y;
-			points.push_back(point.position);
-		}
-
-		SDL_RenderLines(renderer, points.data(), points.size());
+		SDL_RenderLines(renderer, obj.data(), obj.size());
 
 		// debugging
 		// SDL_RenderPoints(renderer, points.data(), points.size());
 	}
 	
 	for (auto line : text) {
+		line.pos.y = viewport.y - line.pos.y;
 		SDL_RenderDebugText(renderer, line.pos.x, line.pos.y, line.text.c_str());
 	}
-
 
 
 	// Present to screen

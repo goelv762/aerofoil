@@ -1,6 +1,7 @@
 #include "aerofoil.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/geometric.hpp>
 #include <iostream>
@@ -30,7 +31,7 @@ double normaliseAngle(double angle) {
 	return angle;
 }
 
-std::vector<glm::vec2> generateAerofoilPoints(double m, double p, double t, uint16_t n, double scale) {
+std::vector<glm::vec2> generateAerofoilPoints(double m, double p, double t, uint16_t n) {
 	std::vector<glm::vec2> upper;
 	std::vector<glm::vec2> lower;
 	
@@ -63,14 +64,10 @@ std::vector<glm::vec2> generateAerofoilPoints(double m, double p, double t, uint
 			yc + yt * cosTheta
 		};
 
-		u *= scale;
-
 		glm::vec2 l = {
 			x + yt * sinTheta,
 			yc - yt * cosTheta
 		};
-
-		l *= scale;
 
 		upper.push_back(u);
 		lower.push_back(l);
@@ -118,4 +115,69 @@ std::vector<Panel> generateAerofoilPanels(std::vector<glm::vec2> points, double 
 	}
 
 	return panels;
+}
+
+std::pair<Matrix, Matrix> computeIJ(std::vector<Panel>& panels) {
+	// for normal velocity influence
+	Matrix I(panels.size(), panels.size());
+	// for tangential velocity influence
+	Matrix J(panels.size(), panels.size());
+
+	size_t nPanels = panels.size();
+	for (size_t i = 0; i < nPanels; i++) {
+		for (size_t j = 0; j < nPanels; j++) {
+			if (i != j) {
+				Panel pi = panels[i];
+				Panel pj = panels[j];
+				
+				// intermediate values
+				double A = -(pi.pc.x - pj.p1.x) * std::cos(pj.phi) - (pi.pc.y - pj.p1.y) * std::sin(pj.phi);
+				double B = std::pow(pi.pc.x - pj.p1.x, 2) + std::pow(pi.pc.y - pj.p1.y, 2);
+				double Cn = std::sin(pi.phi - pj.phi);
+				double Dn = -(pi.pc.x - pj.p1.x) * std::sin(pi.phi) + (pi.pc.y - pj.p1.y) * std::cos(pi.phi);
+				double Ct = -std::cos(pi.phi - pj.phi);
+				double Dt = (pi.pc.x - pj.p1.x) * std::cos(pi.phi) + (pi.pc.y - pj.p1.y) * std::sin(pi.phi);
+				double E = std::sqrt(B - std::pow(A, 2));
+
+				if (std::abs(E) < 1e-12 || std::isnan(E)) {
+					I[i][j] = 0;
+					J[i][j] = 0;
+				} else {
+					// compute I
+					double i1 = 0.5 * Cn * std::log((pow(pj.s, 2) + 2.0 * A * pj.s + B) / B);
+					double i2 = ((Dn - A * Cn) / E) * (std::atan2((pj.s + A), E) - atan2(A, E));
+					I[i][j] = i1 + i2;
+
+					double j1 = 0.5 * Ct * std::log((pow(pj.s, 2) + 2.0 * A * pj.s + B) / B);
+					double j2 = ((Dt - A * Ct) / E) * (std::atan2((pj.s + A), E) - atan2(A, E));
+					J[i][j] = j1 + j2;
+				}
+
+				if (std::isnan(I[i][j])) {
+					I[i][j] = 0;
+				}
+
+				if (std::isnan(J[i][j])) {
+					J[i][j] = 0;
+				}
+			}
+			
+			// initialise diagonal
+			if (i == j) {
+				I[i][j] = M_PI;
+				J[i][j] = 0.0;
+			}
+		}
+	}
+	
+	return {I, J};
+}
+
+Vec computeB(std::vector<Panel>& panels, double Vinf) {
+	Vec b(panels.size());
+	for (size_t i = 0; i < panels.size(); i++) {
+		b[i] = -Vinf * 2 * M_PI * cos(panels[i].beta);
+	}
+
+	return b;
 }

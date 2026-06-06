@@ -15,12 +15,13 @@ class Render {
 		SDL_Window *window;
 		SDL_Renderer *renderer;
 	
-		std::vector<std::vector<SDL_Vertex>> objs;
+		std::vector<std::vector<SDL_FPoint>> objs;
 		std::vector<Text> text;
 
 		glm::vec2 viewport;
+		float scale;
 	public:
-		Render(glm::vec2 dim);
+		Render(glm::vec2 dim, double s);
 		~Render();
 		
 		void addObj(std::vector<glm::vec2>& obj);

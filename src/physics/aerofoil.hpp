@@ -1,3 +1,4 @@
+#include "../math/linAlg.hpp"
 #include <glm/detail/qualifier.hpp>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/glm.hpp>
@@ -18,12 +19,20 @@ struct Panel {
 	double delta;
 	// angle between freestream and panel normal
 	double beta;
+
+	// source strength
+	double sigma;
 };
 
 // mc -> max camber
 // mcp -> max camber position
 // t -> thickness
 // n -> number of points
-std::vector<glm::vec2> generateAerofoilPoints(double m, double p, double t, uint16_t n, double scale);
+std::vector<glm::vec2> generateAerofoilPoints(double m, double p, double t, uint16_t n);
 // AoA -> angle of attack
 std::vector<Panel> generateAerofoilPanels(std::vector<glm::vec2> points, double AoA);
+
+std::pair<Matrix, Matrix> computeIJ(std::vector<Panel>& panels);
+// Vinf -> free stream velocity
+Vec computeB(std::vector<Panel>& panels, double Vinf);
+
