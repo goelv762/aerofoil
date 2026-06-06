@@ -5,6 +5,7 @@
 #include <glm/ext/vector_float2.hpp>
 #include <glm/geometric.hpp>
 #include <iostream>
+#include <limits>
 #include <ostream>
 #include <sys/types.h>
 #include <vector>
@@ -139,17 +140,17 @@ std::pair<Matrix, Matrix> computeIJ(std::vector<Panel>& panels) {
 				double Dt = (pi.pc.x - pj.p1.x) * std::cos(pi.phi) + (pi.pc.y - pj.p1.y) * std::sin(pi.phi);
 				double E = std::sqrt(B - std::pow(A, 2));
 
-				if (std::abs(E) < 1e-12 || std::isnan(E)) {
+				if (std::abs(E) < std::numeric_limits<double>::epsilon() || std::isnan(E)) {
 					I[i][j] = 0;
 					J[i][j] = 0;
 				} else {
 					// compute I
 					double i1 = 0.5 * Cn * std::log((pow(pj.s, 2) + 2.0 * A * pj.s + B) / B);
-					double i2 = ((Dn - A * Cn) / E) * (std::atan2((pj.s + A), E) - atan2(A, E));
+					double i2 = ((Dn - A * Cn) / E) * (std::atan2(pj.s + A, E) - atan2(A, E));
 					I[i][j] = i1 + i2;
 
 					double j1 = 0.5 * Ct * std::log((pow(pj.s, 2) + 2.0 * A * pj.s + B) / B);
-					double j2 = ((Dt - A * Ct) / E) * (std::atan2((pj.s + A), E) - atan2(A, E));
+					double j2 = ((Dt - A * Ct) / E) * (std::atan2(pj.s + A, E) - atan2(A, E));
 					J[i][j] = j1 + j2;
 				}
 

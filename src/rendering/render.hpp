@@ -24,7 +24,7 @@ class Render {
 		Render(glm::vec2 dim, double s);
 		~Render();
 		
-		void addObj(std::vector<glm::vec2>& obj);
+		void addObj(std::vector<glm::vec2>& obj, bool center);
 		void addLine(Text& line);
 
 		void update();

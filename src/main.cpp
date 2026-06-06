@@ -1,7 +1,5 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include <cstddef>
-#include <cstdlib>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
@@ -13,14 +11,16 @@
 #include "math/linAlg.hpp"
 #include "rendering/render.hpp"
 #include "physics/aerofoil.hpp"
+#include "physics/airflow.hpp"
 
 constexpr glm::vec2 screenDim = {800, 500};
 
-constexpr glm::uint16_t foilPoints = 200;
+constexpr glm::uint16_t foilPoints = 100;
 constexpr double scale = 300.0;
 
 // freestream velocity
 constexpr double Vinf = 1.0;
+constexpr double AoA = 0.0;
 
 double getDT() {
     static uint64_t lastTime = SDL_GetPerformanceCounter();
@@ -44,7 +44,7 @@ int main() {
 	double t = std::stoi(NACA4.substr(NACA4.length() - 2)) / 100.0f;
 
 	std::vector<glm::vec2> boundryPoints = generateAerofoilPoints(m, p, t, foilPoints);
-	std::vector<Panel> panels = generateAerofoilPanels(boundryPoints, 0.0);
+	std::vector<Panel> panels = generateAerofoilPanels(boundryPoints, AoA);
 	// I and J matrices (note: stupid notation ??? I is not the identity matrix here)
  	auto [I, J] = computeIJ(panels);
 	// b vector
@@ -52,18 +52,30 @@ int main() {
 
 	// solve the matrix equation Ix = b
 	Vec panelStrengths = GaussianElimination(I, b);
-	double avg = 0.0f;
-	for (size_t i = 0; i < panels.size(); i++) {
-		avg += panelStrengths[i] * panels[i].s;
+
+	// double s = 0.0f;
+	// for (size_t i = 0; i < panels.size(); i++) {
+	// 	s += panelStrengths[i] * panels[i].s;
+	// }
+	// // s should be 0
+	// std::cout << s << std::endl;
+	
+	for (int i = 0; i < 10; i++) {
+		glm::vec2 testPoint = {i / 10.0, 0.0};
+		
+		std::vector<glm::vec2> influence = streamlineSPM(panels, testPoint);
+		glm::vec2 vel = resolveVelocity(influence, panelStrengths, Vinf, AoA);
+
+		std::cout << vel.x << " | " << vel.y << std::endl;
 	}
-	std::cout << avg << std::endl;
+	
 	
 	Text name = {
 		.text = "NACA " + NACA4 + " AIRFOIL",
 		.pos = {3, 10}
 	};
 
-	render.addObj(boundryPoints);
+	render.addObj(boundryPoints, true);
 	render.addLine(name);
 
 

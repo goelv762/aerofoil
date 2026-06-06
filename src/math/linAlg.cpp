@@ -240,8 +240,6 @@ Vec GaussianElimination(const Matrix& A, const Vec& b) {
 		augmented[i][A.cols()] = b[i];
 	}
 
-	std::cout << augmented << std::endl;
-
 	// RREF
 	for (size_t i = 0; i < A.rows(); i++) {
 		size_t pivotRow = i;

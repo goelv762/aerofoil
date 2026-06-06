@@ -29,26 +29,31 @@ Render::Render(glm::vec2 dim, double s) : viewport(dim), scale(s) {
     }
 }
 
-void Render::addObj(std::vector<glm::vec2>& obj) {
+void Render::addObj(std::vector<glm::vec2>& obj, bool center) {
 	// convert to sdl format to prevent having to re interprent case
 	std::vector<SDL_FPoint> sdlPoints;
 
 	glm::vec2 avg = {0.0f, 0.0f};
+
 	for (glm::vec2& point : obj) {
 		// scale up
 		point *= scale;
 		// flip y axis
 		point.y = viewport.y - point.y;
-		// center
-		// TODO: add flag for obj centering
-		avg += point;
+		
+		if (center) {
+			avg += point;
+		}
 	}
 
-	avg /= obj.size();
 	
-	for (glm::vec2& point : obj) {
-		point += viewport / 2.0f  - avg;
-		sdlPoints.push_back({point.x, point.y});
+	if (center) {
+		avg /= obj.size();
+
+		for (glm::vec2& point : obj) {
+			point += viewport / 2.0f  - avg;
+			sdlPoints.push_back({point.x, point.y});
+		}
 	}
 
 
