@@ -1,8 +1,8 @@
-#include "../math/linAlg.hpp"
 #include <glm/detail/qualifier.hpp>
-#include <glm/ext/vector_float2.hpp>
 #include <glm/glm.hpp>
 #include <vector>
+
+#include "../math/linAlg.hpp"
 
 struct Panel { 
 	// first and second point (cw order)

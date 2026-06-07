@@ -20,11 +20,13 @@ class Render {
 
 		glm::vec2 viewport;
 		float scale;
+		glm::vec2 offset;
 	public:
 		Render(glm::vec2 dim, double s);
 		~Render();
 		
-		void addObj(std::vector<glm::vec2>& obj, bool center);
+		void addObj(std::vector<glm::vec2>& obj);
+		void setOffset(std::vector<glm::vec2>& obj);
 		void addLine(Text& line);
 
 		void update();

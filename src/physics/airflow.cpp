@@ -1,11 +1,9 @@
 #include <cmath>
-#include <glm/ext/vector_float2.hpp>
 #include <vector>
 
-#include "aerofoil.hpp"
 #include "airflow.hpp"
 
-std::vector<glm::vec2> streamlineSPM(std::vector<Panel>& panels, glm::vec2 point) {
+glm::vec2 resolveVelocity(std::vector<Panel>& panels, Vec& panelStrengths, double Vinf, double AoA, glm::vec2 point) {
 	std::vector<glm::vec2> M(panels.size());
 
 	for (size_t i = 0; i < panels.size(); i++) {
@@ -46,16 +44,12 @@ std::vector<glm::vec2> streamlineSPM(std::vector<Panel>& panels, glm::vec2 point
 		}
 	}
 
-	return M;
-}
-
-glm::vec2 resolveVelocity(std::vector<glm::vec2> influence, Vec panelStrengths, double Vinf, double AoA) {
 	glm::vec2 velocity;
 
 	glm::vec2 sum = {0.0, 0.0};
 	for (size_t i = 0; i < panelStrengths.size(); i++) {
-		sum.x += panelStrengths[i] * influence[i].x / (2.0 * M_PI);
-		sum.y += panelStrengths[i] * influence[i].y / (2.0 * M_PI);
+		sum.x += panelStrengths[i] * M[i].x / (2.0 * M_PI);
+		sum.y += panelStrengths[i] * M[i].y / (2.0 * M_PI);
 	}
 
 	velocity.x = Vinf * std::cos(AoA) + sum.x;

@@ -1,6 +1,6 @@
 # Aerofoil
 Rendering of NACA4 Aerofoils (future plans of using vortex / source panel method for simulations).
-<img width="800" height="500" alt="scr" src="https://github.com/user-attachments/assets/f308ba11-2895-45d8-bf94-0bf7526e728a" />
+<img width="800" height="500" alt="scr" src="https://github.com/user-attachments/assets/cf22a157-1312-472c-9c66-2ea3524e6edd" />
 
 
 ## Description

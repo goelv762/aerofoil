@@ -1,4 +1,3 @@
-#include "aerofoil.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -9,6 +8,8 @@
 #include <ostream>
 #include <sys/types.h>
 #include <vector>
+
+#include "aerofoil.hpp"
 
 double computeYT(double t, double x, bool isOpen) {
 	// constants are derived somewhere else,

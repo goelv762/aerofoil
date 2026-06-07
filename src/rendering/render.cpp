@@ -4,11 +4,15 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3_image/SDL_image.h>
 #include <glm/ext/vector_float2.hpp>
-#include <iostream>
-#include <ostream>
 #include <vector>
 
+constexpr float padding = 3.0f;
+
 constexpr SDL_FColor defaultColour = {200, 200, 200, 255};
+constexpr SDL_FColor renderColour  = {30, 30, 30, 255};
+constexpr SDL_FColor accentColour  = {137, 207, 240, 255};
+
+constexpr float textSize = 8;
 
 Render::Render(glm::vec2 dim, double s) : viewport(dim), scale(s) {
 	if (SDL_Init(SDL_INIT_VIDEO) == 0) {
@@ -29,36 +33,35 @@ Render::Render(glm::vec2 dim, double s) : viewport(dim), scale(s) {
     }
 }
 
-void Render::addObj(std::vector<glm::vec2>& obj, bool center) {
-	// convert to sdl format to prevent having to re interprent case
-	std::vector<SDL_FPoint> sdlPoints;
+void Render::addObj(std::vector<glm::vec2>& obj) {
+    std::vector<SDL_FPoint> sdlPoints;
 
-	glm::vec2 avg = {0.0f, 0.0f};
-
-	for (glm::vec2& point : obj) {
-		// scale up
-		point *= scale;
-		// flip y axis
-		point.y = viewport.y - point.y;
+    for (glm::vec2 point : obj) {
 		
-		if (center) {
-			avg += point;
-		}
-	}
+		// world to screen
+        point = (point * scale) + offset;
 
-	
-	if (center) {
-		avg /= obj.size();
+        // flip y
+        point.y = viewport.y - point.y;
 
-		for (glm::vec2& point : obj) {
-			point += viewport / 2.0f  - avg;
-			sdlPoints.push_back({point.x, point.y});
-		}
-	}
+        sdlPoints.push_back({point.x, point.y});
+    }
 
-
-	objs.push_back(sdlPoints);
+    objs.push_back(sdlPoints);
 }
+
+void Render::setOffset(std::vector<glm::vec2>& obj) {
+    glm::vec2 avg = {0.0f, 0.0f};
+
+    for (glm::vec2& point : obj) {
+        avg += point;
+    }
+
+    avg /= obj.size();
+
+    offset = viewport * 0.5f - avg * scale;
+}
+
 void Render::addLine(Text& line) {
 	text.push_back(line);
 }
@@ -70,10 +73,10 @@ Render::~Render() {
 }
 
 void Render::update() {
-	SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+	SDL_SetRenderDrawColor(renderer, renderColour.r, renderColour.g, renderColour.b, renderColour.a);
 	SDL_RenderClear(renderer);
 
-	SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+	SDL_SetRenderDrawColor(renderer, defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
 	
 	for (auto obj : objs) {
 		SDL_RenderLines(renderer, obj.data(), obj.size());
@@ -84,6 +87,18 @@ void Render::update() {
 	
 	for (auto line : text) {
 		line.pos.y = viewport.y - line.pos.y;
+		SDL_FRect rect = {
+			line.pos.x - padding,
+			line.pos.y - padding,
+			line.text.size() * textSize + 2.0f * padding,
+			textSize + 2.0f * padding
+		};
+
+		SDL_SetRenderDrawColor(renderer, renderColour.r, renderColour.g, renderColour.b, renderColour.a);
+		SDL_RenderFillRect(renderer, &rect);
+		SDL_SetRenderDrawColor(renderer, accentColour.r, accentColour.g, accentColour.b, accentColour.a);
+		SDL_RenderRect(renderer, &rect);
+		SDL_SetRenderDrawColor(renderer, defaultColour.r, defaultColour.g, defaultColour.b, defaultColour.a);
 		SDL_RenderDebugText(renderer, line.pos.x, line.pos.y, line.text.c_str());
 	}
 
