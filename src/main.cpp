@@ -15,7 +15,7 @@
 constexpr glm::vec2 screenDim = {800, 500};
 constexpr double scale = 500.0;
 
-constexpr uint16_t foilPoints = 100;
+constexpr uint16_t foilPoints = 200;
 // NOTE: not all will be visible, will also have to adjust according to scale
 constexpr uint16_t streamLines = 100;
 
@@ -26,7 +26,7 @@ constexpr float streamLineStride = 0.01f;
 // freestream velocity
 constexpr double Vinf = 1.0;
 // angle of attack (of freestream), rad
-constexpr double AoA = 0.05;
+constexpr double AoA = 0.1;
 
 double getDT() {
     static uint64_t lastTime = SDL_GetPerformanceCounter();

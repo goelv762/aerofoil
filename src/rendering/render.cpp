@@ -3,7 +3,6 @@
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3_image/SDL_image.h>
-#include <glm/ext/vector_float2.hpp>
 #include <vector>
 
 constexpr float padding = 3.0f;
@@ -80,9 +79,7 @@ void Render::update() {
 	
 	for (auto obj : objs) {
 		SDL_RenderLines(renderer, obj.data(), obj.size());
-
-		// debugging
-		// SDL_RenderPoints(renderer, points.data(), points.size());
+		// SDL_RenderPoints(renderer, obj.data(), obj.size());
 	}
 	
 	for (auto line : text) {

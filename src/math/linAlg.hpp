@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <ostream>
 #include <vector>
 
@@ -84,6 +83,5 @@ double sum(const Vec& v);
 double average(const Vec& v);
 
 Matrix transpose(const Matrix& m);
-Matrix swapRows(const Matrix& m, int rowI, int rowJ);
 
 Vec GaussianElimination(const Matrix& A, const Vec& b);
